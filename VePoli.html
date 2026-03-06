@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Вепольный анализатор · Тёмная тема</title>
+    <style>
+        /* Базовые светлые переменные (light theme по умолчанию) */
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        h1 {
+            font-size: 1.8rem;
+            color: #333;
+        }
+        .toolbar {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 40px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s, box-shadow 0.2s;
+        }
+        .tool-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            border-right: 1px solid #ccc;
+            padding-right: 20px;
+        }
+        .tool-group:last-child {
+            border-right: none;
+        }
+        .tool-btn {
+            background: #e9ecef;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+        }
+        .tool-btn.active {
+            background: #007bff;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,123,255,0.4);
+        }
+        .tool-btn:hover {
+            background: #d0d4d9;
+        }
+        select, button {
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1px solid #ccc;
+            font-size: 0.95rem;
+            background: white;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+        }
+        button {
+            background: #dc3545;
+            color: white;
+            border: none;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #c82333;
+        }
+        canvas {
+            display: block;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            cursor: crosshair;
+            transition: background-color 0.2s, box-shadow 0.2s;
+        }
+        .info {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            background: #e9ecef;
+            padding: 6px 20px;
+            border-radius: 30px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .field-types {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        .field-types span {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        /* Кнопка переключения темы */
+        .theme-toggle {
+            background: transparent;
+            border: 1px solid #aaa;
+            font-size: 1.2rem;
+            padding: 8px 12px;
+            line-height: 1;
+            border-radius: 30px;
+        }
+
+        /* Тёмная тема */
+        body.dark-theme {
+            background: #1e1e2f;
+            color: #eee;
+        }
+        body.dark-theme h1 {
+            color: #ddd;
+        }
+        body.dark-theme .toolbar {
+            background: #2d2d3a;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            border: 1px solid #444;
+        }
+        body.dark-theme .tool-group {
+            border-right-color: #555;
+        }
+        body.dark-theme .tool-btn {
+            background: #3a3a4a;
+            color: #eee;
+        }
+        body.dark-theme .tool-btn:hover {
+            background: #4f4f62;
+        }
+        body.dark-theme .tool-btn.active {
+            background: #1e6bb8;
+            color: white;
+        }
+        body.dark-theme select,
+        body.dark-theme button:not(.theme-toggle):not(#clearBtn) {
+            background: #3a3a4a;
+            color: #eee;
+            border-color: #666;
+        }
+        body.dark-theme #clearBtn {
+            background: #a12b2b;
+        }
+        body.dark-theme #clearBtn:hover {
+            background: #b33a3a;
+        }
+        body.dark-theme .theme-toggle {
+            background: #3a3a4a;
+            color: #ffd966;
+            border-color: #777;
+        }
+        body.dark-theme canvas {
+            background: #252532;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+        }
+        body.dark-theme .info {
+            background: #2d2d3a;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Вепольный конструктор</h1>
+    <div class="toolbar">
+        <div class="tool-group">
+            <button class="tool-btn" id="modeSubstance" data-mode="substance">➕ Вещество</button>
+            <button class="tool-btn active" id="modeField" data-mode="field">⚡ Поле</button>
+            <button class="tool-btn" id="modeMove" data-mode="move">🖱️ Перемещение</button>
+        </div>
+        <div class="tool-group field-types">
+            <span>Тип поля:</span>
+            <select id="fieldTypeSelect">
+                <option value="Мех">Механическое (М)</option>
+                <option value="Тепл">Тепловое (Т)</option>
+                <option value="Хим">Химическое (Х)</option>
+                <option value="Эл">Электрическое (Э)</option>
+                <option value="Магн">Магнитное (Маг)</option>
+            </select>
+        </div>
+        <div class="tool-group">
+            <button id="clearBtn">🗑️ Очистить всё</button>
+            <button id="themeToggle" class="theme-toggle" title="Переключить тему">🌙</button>
+        </div>
+    </div>
+    <canvas id="canvas" width="1000" height="600"></canvas>
+    <div class="info">
+        <span id="status">Режим: ПОЛЕ — кликните на первое вещество, затем на второе</span>
+    </div>
+
+    <script>
+        (function() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Массивы для хранения элементов модели
+            let substances = [];
+            let fields = [];
+
+            // Генератор ID
+            let nextId = 1;
+
+            // Состояние интерфейса
+            let mode = 'field';          // 'substance', 'field', 'move'
+            let fieldType = 'Мех';        // выбранный тип поля
+            let selectedSubstanceId = null; // для построения поля (первое вещество)
+            let dragging = null;           // { id, offsetX, offsetY }
+            let darkTheme = false;          // флаг тёмной темы
+
+            // Элементы управления
+            const modeSubstanceBtn = document.getElementById('modeSubstance');
+            const modeFieldBtn = document.getElementById('modeField');
+            const modeMoveBtn = document.getElementById('modeMove');
+            const fieldTypeSelect = document.getElementById('fieldTypeSelect');
+            const clearBtn = document.getElementById('clearBtn');
+            const themeToggle = document.getElementById('themeToggle');
+            const statusSpan = document.getElementById('status');
+
+            // Размеры вещества
+            const SUBSTANCE_WIDTH = 100;
+            const SUBSTANCE_HEIGHT = 60;
+
+            // ---------- Вспомогательные функции ----------
+            function updateStatus() {
+                if (mode === 'substance') {
+                    statusSpan.innerText = 'Режим: ВЕЩЕСТВО — кликните на холст, чтобы добавить новый элемент';
+                } else if (mode === 'field') {
+                    if (selectedSubstanceId === null) {
+                        statusSpan.innerText = 'Режим: ПОЛЕ — выберите первое вещество';
+                    } else {
+                        const sub = substances.find(s => s.id === selectedSubstanceId);
+                        statusSpan.innerText = `Режим: ПОЛЕ — выбрано вещество "${sub.text}", теперь выберите второе`;
+                    }
+                } else if (mode === 'move') {
+                    statusSpan.innerText = 'Режим: ПЕРЕМЕЩЕНИЕ — перетаскивайте вещества мышкой';
+                }
+            }
+
+            // Получить координаты мыши относительно canvas
+            function getMousePos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                return {
+                    x: (e.clientX - rect.left) * scaleX,
+                    y: (e.clientY - rect.top) * scaleY
+                };
+            }
+
+            // Проверка, попадает ли точка в вещество
+            function hitSubstance(x, y) {
+                for (let i = substances.length - 1; i >= 0; i--) {
+                    const s = substances[i];
+                    if (x >= s.x && x <= s.x + s.w && y >= s.y && y <= s.y + s.h) {
+                        return s;
+                    }
+                }
+                return null;
+            }
+
+            // Генерация текста для нового вещества
+            function generateSubstanceText() {
+                return 'В' + (substances.length + 1);
+            }
+
+            // Добавление нового вещества
+            function addSubstance(x, y) {
+                x = Math.min(Math.max(x, 10), canvas.width - SUBSTANCE_WIDTH - 10);
+                y = Math.min(Math.max(y, 10), canvas.height - SUBSTANCE_HEIGHT - 10);
+                const newSub = {
+                    id: nextId++,
+                    x: x,
+                    y: y,
+                    w: SUBSTANCE_WIDTH,
+                    h: SUBSTANCE_HEIGHT,
+                    text: generateSubstanceText()
+                };
+                substances.push(newSub);
+                draw();
+            }
+
+            // Удаление вещества и связанных с ним полей
+            function deleteSubstance(id) {
+                substances = substances.filter(s => s.id !== id);
+                fields = fields.filter(f => f.fromId !== id && f.toId !== id);
+                if (selectedSubstanceId === id) {
+                    selectedSubstanceId = null;
+                }
+                draw();
+                updateStatus();
+            }
+
+            // Создание поля между двумя веществами
+            function addField(fromId, toId, type) {
+                if (fromId === toId) {
+                    alert('Нельзя соединить вещество само с собой');
+                    return false;
+                }
+                const exists = fields.some(f => 
+                    (f.fromId === fromId && f.toId === toId) || 
+                    (f.fromId === toId && f.toId === fromId)
+                );
+                if (exists) {
+                    alert('Поле между этими веществами уже существует');
+                    return false;
+                }
+                fields.push({
+                    id: nextId++,
+                    fromId: fromId,
+                    toId: toId,
+                    type: type
+                });
+                return true;
+            }
+
+            // Переключение темы
+            function toggleTheme() {
+                darkTheme = !darkTheme;
+                document.body.classList.toggle('dark-theme', darkTheme);
+                themeToggle.innerText = darkTheme ? '☀️' : '🌙';
+                draw(); // перерисовать canvas с новыми цветами
+            }
+
+            // Отрисовка с учётом темы
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Цвета в зависимости от темы
+                const lineColor = darkTheme ? '#e0e0e0' : '#2c3e50';
+                const arrowColor = darkTheme ? '#e0e0e0' : '#2c3e50';
+                const fieldLabelColor = darkTheme ? '#ffaa33' : '#e67e22';
+                const substanceFill = darkTheme ? '#3a4a5a' : '#3498db';
+                const substanceStroke = darkTheme ? '#b0b0b0' : '#2c3e50';
+                const substanceText = '#ffffff';
+                const selectedStroke = darkTheme ? '#f1c40f' : '#f39c12';
+
+                // Рисуем поля (линии со стрелками и подписями)
+                fields.forEach(field => {
+                    const fromSub = substances.find(s => s.id === field.fromId);
+                    const toSub = substances.find(s => s.id === field.toId);
+                    if (!fromSub || !toSub) return;
+
+                    const fromX = fromSub.x + fromSub.w / 2;
+                    const fromY = fromSub.y + fromSub.h / 2;
+                    const toX = toSub.x + toSub.w / 2;
+                    const toY = toSub.y + toSub.h / 2;
+
+                    // Линия
+                    ctx.beginPath();
+                    ctx.moveTo(fromX, fromY);
+                    ctx.lineTo(toX, toY);
+                    ctx.strokeStyle = lineColor;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+
+                    // Стрелка
+                    const angle = Math.atan2(toY - fromY, toX - fromX);
+                    const arrowSize = 12;
+                    const arrowX = toX - arrowSize * 0.5 * Math.cos(angle);
+                    const arrowY = toY - arrowSize * 0.5 * Math.sin(angle);
+
+                    ctx.fillStyle = arrowColor;
+                    ctx.beginPath();
+                    ctx.moveTo(arrowX, arrowY);
+                    ctx.lineTo(arrowX - arrowSize * 0.5 * Math.cos(angle - 0.3), arrowY - arrowSize * 0.5 * Math.sin(angle - 0.3));
+                    ctx.lineTo(arrowX - arrowSize * 0.5 * Math.cos(angle + 0.3), arrowY - arrowSize * 0.5 * Math.sin(angle + 0.3));
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Подпись типа поля
+                    const midX = (fromX + toX) / 2;
+                    const midY = (fromY + toY) / 2;
+                    ctx.font = 'bold 14px sans-serif';
+                    ctx.fillStyle = fieldLabelColor;
+                    ctx.shadowColor = darkTheme ? '#333' : '#ccc';
+                    ctx.shadowBlur = 4;
+                    ctx.fillText(field.type, midX + 10, midY - 10);
+                    ctx.shadowBlur = 0;
+                });
+
+                // Рисуем вещества
+                substances.forEach(s => {
+                    // Прямоугольник
+                    ctx.fillStyle = substanceFill;
+                    ctx.shadowColor = darkTheme ? '#222' : '#aaa';
+                    ctx.shadowBlur = 6;
+                    ctx.fillRect(s.x, s.y, s.w, s.h);
+                    // Обводка
+                    ctx.strokeStyle = substanceStroke;
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(s.x, s.y, s.w, s.h);
+                    // Текст
+                    ctx.fillStyle = substanceText;
+                    ctx.font = 'bold 16px sans-serif';
+                    ctx.shadowBlur = 0;
+                    ctx.fillText(s.text, s.x + 20, s.y + 35);
+
+                    // Если вещество выбрано для поля, подсветим его рамкой
+                    if (selectedSubstanceId === s.id) {
+                        ctx.strokeStyle = selectedStroke;
+                        ctx.lineWidth = 4;
+                        ctx.strokeRect(s.x - 2, s.y - 2, s.w + 4, s.h + 4);
+                    }
+                });
+
+                // Сброс теней
+                ctx.shadowBlur = 0;
+            }
+
+            // ---------- Обработчики событий мыши ----------
+            canvas.addEventListener('mousedown', (e) => {
+                if (mode !== 'move') return;
+                const pos = getMousePos(e);
+                const sub = hitSubstance(pos.x, pos.y);
+                if (sub) {
+                    dragging = {
+                        id: sub.id,
+                        offsetX: pos.x - sub.x,
+                        offsetY: pos.y - sub.y
+                    };
+                    canvas.style.cursor = 'grabbing';
+                    e.preventDefault();
+                }
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (dragging) {
+                    const pos = getMousePos(e);
+                    const sub = substances.find(s => s.id === dragging.id);
+                    if (sub) {
+                        let newX = pos.x - dragging.offsetX;
+                        let newY = pos.y - dragging.offsetY;
+                        newX = Math.min(Math.max(newX, 0), canvas.width - sub.w);
+                        newY = Math.min(Math.max(newY, 0), canvas.height - sub.h);
+                        sub.x = newX;
+                        sub.y = newY;
+                        draw();
+                    }
+                    e.preventDefault();
+                }
+            });
+
+            canvas.addEventListener('mouseup', () => {
+                dragging = null;
+                canvas.style.cursor = mode === 'move' ? 'grab' : 'crosshair';
+            });
+
+            canvas.addEventListener('mouseleave', () => {
+                dragging = null;
+                canvas.style.cursor = 'crosshair';
+            });
+
+            canvas.addEventListener('click', (e) => {
+                const pos = getMousePos(e);
+                const sub = hitSubstance(pos.x, pos.y);
+
+                if (mode === 'substance') {
+                    if (!sub) {
+                        addSubstance(pos.x - SUBSTANCE_WIDTH/2, pos.y - SUBSTANCE_HEIGHT/2);
+                    }
+                } 
+                else if (mode === 'field') {
+                    if (!sub) {
+                        selectedSubstanceId = null;
+                        updateStatus();
+                        draw();
+                        return;
+                    }
+                    if (selectedSubstanceId === null) {
+                        selectedSubstanceId = sub.id;
+                    } else {
+                        const success = addField(selectedSubstanceId, sub.id, fieldType);
+                        selectedSubstanceId = null;
+                        if (success) draw();
+                    }
+                    updateStatus();
+                    draw();
+                }
+            });
+
+            canvas.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                const pos = getMousePos(e);
+                const sub = hitSubstance(pos.x, pos.y);
+                if (sub) {
+                    deleteSubstance(sub.id);
+                }
+            });
+
+            // ---------- Переключение режимов ----------
+            function setActiveMode(newMode) {
+                mode = newMode;
+                selectedSubstanceId = null;
+                dragging = null;
+
+                [modeSubstanceBtn, modeFieldBtn, modeMoveBtn].forEach(btn => btn.classList.remove('active'));
+                if (mode === 'substance') modeSubstanceBtn.classList.add('active');
+                if (mode === 'field') modeFieldBtn.classList.add('active');
+                if (mode === 'move') modeMoveBtn.classList.add('active');
+
+                canvas.style.cursor = mode === 'move' ? 'grab' : 'crosshair';
+                updateStatus();
+                draw();
+            }
+
+            modeSubstanceBtn.addEventListener('click', () => setActiveMode('substance'));
+            modeFieldBtn.addEventListener('click', () => setActiveMode('field'));
+            modeMoveBtn.addEventListener('click', () => setActiveMode('move'));
+
+            fieldTypeSelect.addEventListener('change', (e) => {
+                fieldType = e.target.value;
+            });
+
+            clearBtn.addEventListener('click', () => {
+                substances = [];
+                fields = [];
+                selectedSubstanceId = null;
+                nextId = 1;
+                draw();
+                updateStatus();
+            });
+
+            themeToggle.addEventListener('click', toggleTheme);
+
+            // Инициализация: добавим пару примеров для демо
+            addSubstance(200, 200);
+            addSubstance(500, 300);
+            addSubstance(350, 100);
+            setTimeout(() => {
+                if (substances.length >= 2) {
+                    addField(substances[0].id, substances[1].id, 'Мех');
+                    draw();
+                }
+            }, 100);
+
+            setActiveMode('field');
+            draw();
+        })();
+    </script>
+</body>
+</html>

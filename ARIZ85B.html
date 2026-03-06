@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>АРИЗ-85-В — тёмная тема</title>
+    <style>
+        /* ----- Светлая тема (по умолчанию) ----- */
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+        body {
+            background: #f2f5f9;
+            margin: 0;
+            padding: 20px;
+            color: #1a2639;
+            transition: background-color 0.3s, color 0.2s;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 40px -10px rgba(0,20,40,0.2);
+            padding: 30px 35px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 500;
+            margin-top: 0;
+            margin-bottom: 0.3rem;
+            color: #0b2b40;
+            letter-spacing: -0.5px;
+        }
+        .subhead {
+            font-size: 1rem;
+            color: #4a5f73;
+            margin-bottom: 2rem;
+            border-left: 4px solid #7f9fbb;
+            padding-left: 18px;
+            background: #f0f4fa;
+            border-radius: 0 12px 12px 0;
+            line-height: 1.4;
+        }
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: #e9eef3;
+            padding: 16px 20px;
+            border-radius: 48px;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+        .toolbar button, .file-input-label {
+            background: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #1a3b4f;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.02);
+            transition: 0.15s, background-color 0.3s, color 0.3s;
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .toolbar button:hover, .file-input-label:hover {
+            background: #d9e2ed;
+            box-shadow: 0 8px 14px rgba(0,30,50,0.1);
+            border-color: #a0bbd0;
+        }
+        .toolbar button:active {
+            transform: scale(0.97);
+        }
+        #fileImport {
+            display: none;
+        }
+        .section {
+            margin-bottom: 38px;
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 12px 0 8px 0;
+            border: 1px solid #e2eaf1;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .section-header {
+            font-size: 1.6rem;
+            font-weight: 500;
+            color: #123e5c;
+            padding: 0 24px 12px 24px;
+            border-bottom: 2px dashed #cbd6e4;
+            margin: 0 0 16px 0;
+            letter-spacing: -0.3px;
+        }
+        .field-group {
+            padding: 0 24px;
+            margin-bottom: 18px;
+        }
+        .field-label {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #1d4e6f;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .field-label .indent {
+            width: 24px;
+            display: inline-block;
+            text-align: right;
+            color: #809ab3;
+            font-size: 1.2rem;
+        }
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 14px 18px;
+            font-size: 0.95rem;
+            border: 2px solid #dde5ef;
+            border-radius: 24px;
+            background: #fbfdff;
+            transition: 0.15s, background-color 0.3s, border-color 0.3s, color 0.3s;
+            resize: vertical;
+            line-height: 1.5;
+        }
+        textarea:focus, input:focus {
+            border-color: #3f88c5;
+            outline: none;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(63,136,197,0.1);
+        }
+        .sub-item {
+            margin-left: 32px;
+            border-left: 3px solid #b7cfdd;
+            padding-left: 18px;
+            padding-top: 6px;
+            padding-bottom: 6px;
+            background: #f6fafd;
+            border-radius: 0 18px 18px 0;
+        }
+        .micro-sub {
+            margin-left: 48px;
+            background: #f0f6fb;
+            border-left: 3px dotted #96b4cc;
+            padding-left: 20px;
+            border-radius: 0 14px 14px 0;
+        }
+        .footer-note {
+            text-align: right;
+            color: #6f8aa3;
+            font-size: 0.9rem;
+            margin-top: 35px;
+            border-top: 1px solid #dce5f0;
+            padding-top: 20px;
+        }
+        .counter {
+            margin-left: auto;
+            font-weight: 500;
+            color: #2b5e82;
+            background: white;
+            padding: 5px 18px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+        }
+
+        /* ----- Тёмная тема (класс dark-theme на body) ----- */
+        body.dark-theme {
+            background: #121212;
+            color: #e0e0e0;
+        }
+        body.dark-theme .container {
+            background: #1e1e2e;
+            box-shadow: 0 20px 40px -10px #0a0a14;
+        }
+        body.dark-theme h1 {
+            color: #c0d0e0;
+        }
+        body.dark-theme .subhead {
+            color: #a0b0c0;
+            background: #2a2a3a;
+            border-left-color: #5f7f9f;
+        }
+        body.dark-theme .toolbar {
+            background: #2a2a3a;
+        }
+        body.dark-theme .toolbar button, body.dark-theme .file-input-label {
+            background: #3a3a4e;
+            color: #d0e0f0;
+            border-color: #4a4a62;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+        }
+        body.dark-theme .toolbar button:hover, body.dark-theme .file-input-label:hover {
+            background: #4a4a66;
+            border-color: #7a9fbf;
+        }
+        body.dark-theme .section {
+            background: #252536;
+            border-color: #3a3a4e;
+        }
+        body.dark-theme .section-header {
+            color: #aac3d9;
+            border-bottom-color: #4a5f73;
+        }
+        body.dark-theme .field-label {
+            color: #b0c8dd;
+        }
+        body.dark-theme .field-label .indent {
+            color: #7f90a8;
+        }
+        body.dark-theme textarea, body.dark-theme input[type="text"] {
+            background: #1a1a28;
+            border-color: #3a3a50;
+            color: #e0e0e0;
+        }
+        body.dark-theme textarea:focus, body.dark-theme input:focus {
+            border-color: #5f9fcf;
+            background: #202032;
+            box-shadow: 0 0 0 4px rgba(95,159,207,0.2);
+        }
+        body.dark-theme .sub-item {
+            background: #2a2a3c;
+            border-left-color: #5a6f88;
+        }
+        body.dark-theme .micro-sub {
+            background: #222232;
+            border-left-color: #5f7a99;
+        }
+        body.dark-theme .footer-note {
+            color: #8f9fb2;
+            border-top-color: #3a4a5a;
+        }
+        body.dark-theme .counter {
+            background: #2a2a3a;
+            color: #b0c8dd;
+        }
+
+        /* кнопка переключения темы будет выделяться */
+        #themeToggle {
+            background: #3f88c5;
+            color: white;
+        }
+        body.dark-theme #themeToggle {
+            background: #5f5f8a;
+            color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🧩 АРИЗ-85-В · пошаговый навигатор</h1>
+    <div class="subhead">Заполняйте этапы последовательно. Данные сохраняются в браузере. Нажмите «Сохранить» вручную или используйте автосохранение при выходе.</div>
+
+    <div class="toolbar">
+        <button id="saveBtn">💾 Сохранить в localStorage</button>
+        <button id="loadBtn">🔄 Загрузить из localStorage</button>
+        <button id="clearBtn">🗑️ Очистить все поля</button>
+        <button id="exportBtn">📥 Экспорт в JSON</button>
+        <label for="fileImport" class="file-input-label">📂 Импорт JSON</label>
+        <input type="file" id="fileImport" accept=".json,application/json">
+        <button id="themeToggle">🌙 Тёмная тема</button>
+        <span class="counter" id="fieldCounter">полей: 0</span>
+    </div>
+
+    <!-- Контейнер для динамической формы -->
+    <div id="arizForm"></div>
+
+    <div class="footer-note">
+        ⚙️ АРИЗ-85-В — рабочая тетрадь · все поля текстовые
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ----- СТРУКТУРА ПОЛЕЙ (соответствует списку из задачи) -----
+        const fields = [
+            { label: "Проблема как Дана ПКД", multiline: true, indent: 0 },
+            { label: "Проблема как Понятна ПКП", multiline: true, indent: 0 },
+            { label: "Мини-задача", multiline: true, indent: 0 },
+            { label: "Техническая система", multiline: true, indent: 0 },
+            { label: "ТП-1", multiline: true, indent: 0 },
+            { label: "ТП-2", multiline: true, indent: 0 },
+            { label: "Необходимо при минимальных изменениях достичь «А»", multiline: true, indent: 0 },
+            { label: "Конфликтующая пара (Изделие и инструмент)", multiline: true, indent: 0 },
+            { label: "Правило-1: Если инструмент может меняться, нужно указать оба состояния", multiline: true, indent: 1 },
+            { label: "Правило-2: Если в задаче есть пары однородных взаимодействующих элементов, достаточно взять одну пару", multiline: true, indent: 1 },
+            { label: "Графическая схема ТП-1 и ТП-2 (Вепольная модель)", multiline: true, indent: 0 },
+            { label: "Выбрать ТП, которая обеспечивает лучшую ОФ (Основная Функция)", multiline: true, indent: 0 },
+            { label: "Усилить Конфликт (указать предельное состояние)", multiline: true, indent: 0 },
+            { label: "Записать формулировку модели задачи: Конфликтующая пара", multiline: true, indent: 1 },
+            { label: "Записать формулировку модели задачи: Усиленная формулировка конфликта", multiline: true, indent: 1 },
+            { label: "Записать формулировку модели задачи: Что должен сделать вводимый икс-элемент", multiline: true, indent: 1 },
+            { label: "Применить стандарт, если возможно (ИФ)", multiline: true, indent: 0 },
+            { label: "Определить Оперативную Зону (ОЗ)", multiline: true, indent: 0 },
+            { label: "Определить Оперативное Время (ОВ)", multiline: true, indent: 0 },
+            { label: "Определить Вещественно-Полевые ресурсы (ВПР)", multiline: true, indent: 0 },
+            { label: "Внутриинструментальные ресурсы", multiline: true, indent: 1 },
+            { label: "Внешнеинструментальные ресурсы", multiline: true, indent: 1 },
+            { label: "Надсистемные ресурсы", multiline: true, indent: 1 },
+            { label: "Формулировка Идеального Конечного Результата (ИКР-1)", multiline: true, indent: 0 },
+            { label: "Усиление ИКР-1", multiline: true, indent: 0 },
+            { label: "Формулировка Физического противоречия (ФП) на макроуровне", multiline: true, indent: 0 },
+            { label: "Формулировка ФП на микроуровне", multiline: true, indent: 0 },
+            { label: "Формулировка ИКР-2", multiline: true, indent: 0 },
+            { label: "Применение стандартов (общее)", multiline: true, indent: 0 },
+            { label: "ММЧ", multiline: true, indent: 1 },
+            { label: "Шаг назад от ИКР", multiline: true, indent: 1 },
+            { label: "Применение смеси ресурсных веществ", multiline: true, indent: 1 },
+            { label: "Замена имеющихся ресурсных веществ", multiline: true, indent: 1 },
+            { label: "Применение веществ, производных от ресурсов", multiline: true, indent: 1 },
+            { label: "Введение электрического поля", multiline: true, indent: 1 },
+            { label: "Введение пары «поле — добавка вещества, отзывающегося на поле»", multiline: true, indent: 1 },
+            { label: "Применение стандартов (инфофонд)", multiline: true, indent: 1 },
+            { label: "Применение задач аналогов", multiline: true, indent: 1 },
+            { label: "Приемы разрешения физических противоречий", multiline: true, indent: 1 },
+            { label: "Применение «указателя физэффектов»", multiline: true, indent: 1 },
+            { label: "Переход от физического ответа к техническому", multiline: true, indent: 1 },
+            { label: "Проверка формулировки задачи на сочетание нескольких задач", multiline: true, indent: 1 },
+            { label: "Изменение задачи", multiline: true, indent: 1 },
+            { label: "Переформулировка мини-задачи", multiline: true, indent: 1 },
+            { label: "Анализ Способа устранения ФП", multiline: true, indent: 0 },
+            { label: "Предварительная оценка полученного решения", multiline: true, indent: 0 },
+            { label: "Проверка формальной новизны", multiline: true, indent: 0 },
+            { label: "Оценка возникающих при внедрении идеи подзадач", multiline: true, indent: 0 },
+            { label: "Как должна быть изменена надсистема", multiline: true, indent: 0 },
+            { label: "Новое применение системы (надсистемы)", multiline: true, indent: 0 },
+            { label: "Использование полученного ответа при решении других задач", multiline: true, indent: 0 },
+            { label: "Сравнение реального хода решения задачи с теоретическим", multiline: true, indent: 0 },
+            { label: "Сравнить результат с данными информационного фонда ТРИЗ", multiline: true, indent: 0 }
+        ];
+
+        const sections = [
+            { title: "🔍 Анализ Задачи", start: 0, end: 14 },
+            { title: "⚙️ Анализ Модели Задачи", start: 15, end: 43 },
+            { title: "✅ Контроль ответа", start: 44, end: 46 },
+            { title: "🚀 Применение полученного ответа", start: 47, end: 49 },
+            { title: "📐 Анализ хода решения", start: 50, end: 51 }
+        ];
+
+        const formContainer = document.getElementById('arizForm');
+        let inputElements = [];
+
+        // ---- Построение формы ----
+        function buildForm() {
+            formContainer.innerHTML = '';
+            inputElements = [];
+
+            for (let s = 0; s < sections.length; s++) {
+                const sec = sections[s];
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'section';
+
+                const header = document.createElement('div');
+                header.className = 'section-header';
+                header.textContent = sec.title;
+                sectionDiv.appendChild(header);
+
+                for (let i = sec.start; i <= sec.end; i++) {
+                    const f = fields[i];
+                    const fieldContainer = document.createElement('div');
+                    fieldContainer.className = 'field-group';
+
+                    const labelDiv = document.createElement('div');
+                    labelDiv.className = 'field-label';
+
+                    if (f.indent === 1) {
+                        labelDiv.innerHTML = '<span class="indent">↳</span> ' + f.label;
+                    } else if (f.indent >= 2) {
+                        labelDiv.innerHTML = '<span class="indent">⇢</span> ' + f.label;
+                    } else {
+                        labelDiv.innerHTML = f.label;
+                    }
+
+                    let input;
+                    if (f.multiline) {
+                        input = document.createElement('textarea');
+                        input.rows = 2;
+                    } else {
+                        input = document.createElement('input');
+                        input.type = 'text';
+                    }
+                    input.id = 'field-' + i;
+                    input.dataset.index = i;
+                    input.placeholder = '...';
+
+                    if (f.indent === 1) {
+                        fieldContainer.classList.add('sub-item');
+                    } else if (f.indent >= 2) {
+                        fieldContainer.classList.add('micro-sub');
+                    }
+
+                    fieldContainer.appendChild(labelDiv);
+                    fieldContainer.appendChild(input);
+                    sectionDiv.appendChild(fieldContainer);
+
+                    inputElements[i] = input;
+                }
+                formContainer.appendChild(sectionDiv);
+            }
+
+            document.getElementById('fieldCounter').innerText = `полей: ${inputElements.length}`;
+        }
+
+        // ---- Сохранение / загрузка данных ----
+        function saveToStorage() {
+            const values = inputElements.map(el => el ? el.value : '');
+            localStorage.setItem('ariz85v_fields', JSON.stringify(values));
+            alert('✅ Данные сохранены в localStorage');
+        }
+
+        function loadFromStorage() {
+            const saved = localStorage.getItem('ariz85v_fields');
+            if (!saved) return;
+            try {
+                const values = JSON.parse(saved);
+                if (Array.isArray(values) && values.length === inputElements.length) {
+                    inputElements.forEach((el, idx) => {
+                        if (el) el.value = values[idx] || '';
+                    });
+                }
+            } catch (e) {}
+        }
+
+        function clearAllFields() {
+            if (confirm('Очистить все введённые данные?')) {
+                inputElements.forEach(el => { if (el) el.value = ''; });
+            }
+        }
+
+        function exportToJson() {
+            const values = inputElements.map(el => el ? el.value : '');
+            const dataStr = JSON.stringify(values, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ariz85_export_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importFromJson(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const values = JSON.parse(e.target.result);
+                    if (Array.isArray(values) && values.length === inputElements.length) {
+                        inputElements.forEach((el, idx) => {
+                            if (el) el.value = values[idx] || '';
+                        });
+                        alert('✅ Данные импортированы');
+                    } else {
+                        alert('Ошибка: неверный формат');
+                    }
+                } catch (ex) {
+                    alert('Ошибка парсинга JSON');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // ---- Тёмная тема ----
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        function setTheme(isDark) {
+            if (isDark) {
+                body.classList.add('dark-theme');
+                themeToggle.textContent = '☀️ Светлая тема';
+                localStorage.setItem('ariz85_theme', 'dark');
+            } else {
+                body.classList.remove('dark-theme');
+                themeToggle.textContent = '🌙 Тёмная тема';
+                localStorage.setItem('ariz85_theme', 'light');
+            }
+        }
+
+        // Инициализация темы из localStorage
+        const savedTheme = localStorage.getItem('ariz85_theme');
+        if (savedTheme === 'dark') {
+            setTheme(true);
+        } else {
+            setTheme(false); // по умолчанию светлая
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const isDark = body.classList.contains('dark-theme');
+            setTheme(!isDark);
+        });
+
+        // ---- Инициализация формы и кнопок ----
+        buildForm();
+        loadFromStorage();
+
+        document.getElementById('saveBtn').addEventListener('click', saveToStorage);
+        document.getElementById('loadBtn').addEventListener('click', loadFromStorage);
+        document.getElementById('clearBtn').addEventListener('click', clearAllFields);
+        document.getElementById('exportBtn').addEventListener('click', exportToJson);
+
+        const fileInput = document.getElementById('fileImport');
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                importFromJson(e.target.files[0]);
+            }
+            fileInput.value = '';
+        });
+
+        // Автосохранение при закрытии
+        window.addEventListener('beforeunload', saveToStorage);
+    })();
+</script>
+</body>
+</html>
